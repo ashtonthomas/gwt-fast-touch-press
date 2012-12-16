@@ -5,6 +5,8 @@ import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.InlineLabel;
 import com.google.gwt.user.client.ui.RootPanel;
@@ -23,6 +25,13 @@ public class Gwt_fast_press implements EntryPoint {
     content.getElement().getStyle().setProperty("margin", "auto");
 
     InlineLabel title = new InlineLabel("Test Fast Button");
+    Anchor githubLink = new Anchor("https://github.com/ashtonthomas/gwt-fast-touch-press");
+    githubLink.addClickHandler(new ClickHandler() {
+      @Override
+      public void onClick(ClickEvent event) {
+        Window.open("https://github.com/ashtonthomas/gwt-fast-touch-press", "_blank", "");
+      }
+    });
 
     final VerticalPanel debugPanel = new VerticalPanel();
 
@@ -90,6 +99,7 @@ public class Gwt_fast_press implements EntryPoint {
 
     // Add elements before adding to DOM for performance (?)
     content.add(title);
+    content.add(githubLink);
     content.add(new InlineLabel("-- FAST --"));
 
     content.add(testButtonHello);
