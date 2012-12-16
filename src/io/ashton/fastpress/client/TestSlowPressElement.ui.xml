@@ -1,0 +1,23 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder" xmlns:g="urn:import:com.google.gwt.user.client.ui">
+	<ui:style type="io.ashton.fastpress.client.TestSlowPressElement.Style">
+		.wrapNormal {
+			padding: 20px 25px 20px 25px;
+			text-align: center;
+			font-size: 20px;
+			background-color: #333333;
+			color: #FFFFFF;
+		}
+
+		.wrapHoldPress {
+			padding: 20px 25px 20px 25px;
+			text-align: center;
+			font-size: 20px;
+			background-color: #CCCCCC;
+			color: #000000;
+		}
+	</ui:style>
+	<g:HTMLPanel styleName="{style.wrapNormal}">
+		<g:InlineLabel ui:field="text">My Button</g:InlineLabel>
+	</g:HTMLPanel>
+</ui:UiBinder>
