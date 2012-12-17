@@ -1,10 +1,12 @@
 package io.ashton.fastpress.client;
 
+import io.ashton.fastpress.client.fast.PressEvent;
+import io.ashton.fastpress.client.fast.PressHandler;
+
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.HTML;
@@ -35,26 +37,30 @@ public class Gwt_fast_press implements EntryPoint {
 
     final VerticalPanel debugPanel = new VerticalPanel();
 
-    TestFastPressElement testButtonHello = new TestFastPressElement("Hello", new Command() {
+
+    TestFastPressElement testButtonHello = new TestFastPressElement("Fast Hello");
+    testButtonHello.addPressHandler(new PressHandler() {
       @Override
-      public void execute() {
+      public void onPress(PressEvent event) {
         debugPanel.add(new HTML(" Fast Hello Pressed! "));
       }
     });
     testButtonHello.setDebugPanel(debugPanel);
 
-    TestFastPressElement testButtonGoodBye =
-        new TestFastPressElement("Fast GoodBye", new Command() {
-          @Override
-          public void execute() {
-            debugPanel.add(new HTML(" Fast Good Bye! "));
-          }
-        });
+
+    TestFastPressElement testButtonGoodBye = new TestFastPressElement("Fast Good By");
+    testButtonGoodBye.addPressHandler(new PressHandler() {
+      @Override
+      public void onPress(PressEvent event) {
+        debugPanel.add(new HTML(" Fast Good Bye! "));
+      }
+    });
     testButtonGoodBye.setDebugPanel(debugPanel);
 
-    TestFastPressElement testButtonFoobar = new TestFastPressElement("Fast Foo Bar", new Command() {
+    TestFastPressElement testButtonFoobar = new TestFastPressElement("Fast Foo Bar");
+    testButtonFoobar.addPressHandler(new PressHandler() {
       @Override
-      public void execute() {
+      public void onPress(PressEvent event) {
         debugPanel.add(new HTML(" Fast Foo Bar! "));
       }
     });
@@ -90,9 +96,10 @@ public class Gwt_fast_press implements EntryPoint {
       }
     }, ClickEvent.getType());
 
-    TestFastPressElement testButton5 = new TestFastPressElement("Fast Clear", new Command() {
+    TestFastPressElement testButton5 = new TestFastPressElement("Fast Clear");
+    testButton5.addPressHandler(new PressHandler() {
       @Override
-      public void execute() {
+      public void onPress(PressEvent event) {
         debugPanel.clear();
       }
     });

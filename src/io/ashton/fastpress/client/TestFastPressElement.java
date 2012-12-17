@@ -1,11 +1,11 @@
 package io.ashton.fastpress.client;
 
+import io.ashton.fastpress.client.fast.FastPressElement;
+
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
-import com.google.gwt.user.client.Command;
-import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.ui.InlineLabel;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -23,18 +23,12 @@ public class TestFastPressElement extends FastPressElement {
 
   @UiField InlineLabel text;
   @UiField Style style;
-  private Command onTouchClick;
 
-  public TestFastPressElement(String textString, Command onTouchClick){
+  public TestFastPressElement(String textString){
     initWidget(uiBinder.createAndBindUi(this));
-    this.onTouchClick = onTouchClick;
     text.setText(textString);
   }
 
-  @Override
-  public void onTouchClickFire(Event event) {
-    onTouchClick.execute();
-  }
 
   @Override
   public void onHoldPressDown() {
