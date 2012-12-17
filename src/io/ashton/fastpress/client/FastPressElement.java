@@ -14,6 +14,13 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
 /**
+ *
+ * TODO: I would like to change the term TouchClick to just Press
+ * Also, I need to add addHandler method that subclasses will inherit that
+ * works in the same way addClickHandler (returning HandlerRegistration) - Should
+ * not be using abstract method onTouchClickFire
+ *
+ *
  * GWT Implementation influenced by Google's FastPressElement:
  * https://developers.google.com/mobile/articles/fast_buttons
  *
@@ -140,10 +147,11 @@ public abstract class FastPressElement extends Composite {
     event.stopPropagation();
 
     if (touchHandled) {
+      // if the touch is already handled, we are on a device
+      // that supports touch (so you aren't in the desktop browser)
       // Let's see how much time we saved from touch
       long timeEnd = getUnixTimeStamp();
       if(debugPanel != null){
-        // If the delay here is 0, you are probably in the browser
         debugPanel.add(new HTML("Touch/Click Delay of: "+(timeEnd - timeStart)+" ms (SAVED!)."));
       }
       // End benchmark
@@ -153,8 +161,12 @@ public abstract class FastPressElement extends Composite {
       super.onBrowserEvent(event);
     } else {
       if (clickHandled) {
+        // Not sure how this situation would occur
+        // onClick being called twice..
         event.preventDefault();
       } else {
+        // Press not handled yet
+
         clickHandled = false;
 
         // We still want to briefly fire the style change

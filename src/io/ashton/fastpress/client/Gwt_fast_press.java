@@ -100,6 +100,8 @@ public class Gwt_fast_press implements EntryPoint {
     // Add elements before adding to DOM for performance (?)
     content.add(title);
     content.add(githubLink);
+    content.add(new HTML("<br/> You will need to view this in a mobile/toouch-based brwoser to see the difference. the Slow Buttons use a regular clickHandler. Rapidly touch fast buttons like using a calculator and then try with the slow buttons. <br/>"));
+
     content.add(new InlineLabel("-- FAST --"));
 
     content.add(testButtonHello);
