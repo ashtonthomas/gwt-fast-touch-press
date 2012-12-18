@@ -7,6 +7,7 @@ import com.google.gwt.dom.client.Touch;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -153,12 +154,6 @@ public abstract class FastPressElement extends Composite implements HasPressHand
         }
         break;
       }
-      case Event.ONTOUCHCANCEL: {
-        if (isEnabled) {
-          onTouchCancel(event);
-        }
-        break;
-      }
       case Event.ONCLICK: {
         if (isEnabled) {
           onClick(event);
@@ -171,12 +166,6 @@ public abstract class FastPressElement extends Composite implements HasPressHand
       }
     }
 
-  }
-
-  private void onTouchCancel(Event event) {
-    // Just mark as moved so we don't have a touchEnd/fire
-    touchMoved = true;
-    onHoldPressOffStyle();// Go back to normal style
   }
 
   private void onClick(Event event) {
@@ -277,6 +266,7 @@ public abstract class FastPressElement extends Composite implements HasPressHand
                                                                                                // right
       if (yTop || yBottom || xLeft || xRight) {
         touchMoved = true;
+        Window.alert("PRESS MOVED OFF OF ELEMENT");
         onHoldPressOffStyle();// Go back to normal style
       }
 
