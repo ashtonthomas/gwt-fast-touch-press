@@ -7,7 +7,6 @@ import com.google.gwt.dom.client.Touch;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -28,6 +27,11 @@ import com.google.gwt.user.client.ui.Widget;
  *
  * If you try to rapidly touch one or more FastPressElements, you will notice a MUCH great
  * improvement.
+ *
+ * NOTE: Different browsers will handle quick swipe or long hold/drag touches differently.
+ * This is an edge case if the user is long pressing or pressing while dragging the finger
+ * slightly (but staying on the element) - The browser may or may not fire the event. However,
+ * the browser will always fire the regular tap/press very quickly.
  *
  * TODO We should be able to embed fastElements and have the child fastElements NOT bubble the event
  * So we can embed the elements if needed (???)
@@ -253,8 +257,9 @@ public abstract class FastPressElement extends Composite implements HasPressHand
 
       // Check to see if we moved off of the original element
 
-      int yCord = move.getClientY();
-      int xCord = move.getClientX();
+      // Use Page coordinates since we compare with widget's absolute coordinates
+      int yCord = move.getPageY();
+      int xCord = move.getPageX();
 
       boolean yTop = getWidget().getAbsoluteTop() > yCord; // is y above element
       boolean yBottom = (getWidget().getAbsoluteTop() + getWidget().getOffsetHeight()) < yCord; // y
@@ -266,7 +271,6 @@ public abstract class FastPressElement extends Composite implements HasPressHand
                                                                                                // right
       if (yTop || yBottom || xLeft || xRight) {
         touchMoved = true;
-        Window.alert("PRESS MOVED OFF OF ELEMENT");
         onHoldPressOffStyle();// Go back to normal style
       }
 
