@@ -46,8 +46,6 @@ public abstract class FastPressElement extends Composite implements HasPressHand
   private boolean clickHandled = false;
   private boolean touchMoved = false;
   private boolean isEnabled = true;
-  private int startY;
-  private int startX;
   private int touchId;
   private int flashDelay = 75; // Default time delay in ms to flash style change
 
@@ -238,8 +236,6 @@ public abstract class FastPressElement extends Composite implements HasPressHand
 
       Touch start = event.getTargetTouches().get(0);
       touchId = start.getIdentifier();
-      this.startX = start.getClientX();
-      this.startY = start.getClientY();
       touchMoved = false;
     }
 
@@ -265,15 +261,18 @@ public abstract class FastPressElement extends Composite implements HasPressHand
       if (move != null) {
         // Check to see if we moved off of the original element
 
-        boolean yTop = getWidget().getAbsoluteTop() > startY; // is y NOT above element
-        boolean yBottom = (getWidget().getAbsoluteTop() + getWidget().getOffsetHeight()) < startY; // is
+        int yCord = move.getClientY();
+        int xCord = move.getClientX();
+
+        boolean yTop = getWidget().getAbsoluteTop() > yCord; // is y NOT above element
+        boolean yBottom = (getWidget().getAbsoluteTop() + getWidget().getOffsetHeight()) < yCord; // is
                                                                                                    // y
                                                                                                    // NOT
                                                                                                    // below
                                                                                                    // the
                                                                                                    // element
-        boolean xLeft = getWidget().getAbsoluteLeft() > startX; // is x NOT to the left of element
-        boolean xRight = (getWidget().getAbsoluteLeft() + getWidget().getOffsetWidth()) > startX; // is
+        boolean xLeft = getWidget().getAbsoluteLeft() > xCord; // is x NOT to the left of element
+        boolean xRight = (getWidget().getAbsoluteLeft() + getWidget().getOffsetWidth()) > xCord; // is
                                                                                                   // x
                                                                                                   // NOT
                                                                                                   // to
