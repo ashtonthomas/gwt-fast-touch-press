@@ -262,25 +262,22 @@ public abstract class FastPressElement extends Composite implements HasPressHand
         }
       }
 
-      if (move != null) {
-        // Check to see if we moved off of the original element
+      // Check to see if we moved off of the original element
 
-        int yCord = move.getScreenY();
-        int xCord = move.getScreenX();
+      int yCord = move.getClientY();
+      int xCord = move.getClientX();
 
-        boolean yTop = getWidget().getAbsoluteTop() > yCord; // is y above element
-        boolean yBottom = (getWidget().getAbsoluteTop() + getWidget().getOffsetHeight()) < yCord; // y
-                                                                                                  // below
-        boolean xLeft = getWidget().getAbsoluteLeft() > xCord; // is x to the left of element
-        boolean xRight = (getWidget().getAbsoluteLeft() + getWidget().getOffsetWidth()) < xCord; // x
-                                                                                                 // to
-                                                                                                 // the
-                                                                                                 // right
-        if (yTop || yBottom || xLeft || xRight) {
-          touchMoved = true;
-          onHoldPressOffStyle();// Go back to normal style
-        }
-
+      boolean yTop = getWidget().getAbsoluteTop() > yCord; // is y above element
+      boolean yBottom = (getWidget().getAbsoluteTop() + getWidget().getOffsetHeight()) < yCord; // y
+                                                                                                // below
+      boolean xLeft = getWidget().getAbsoluteLeft() > xCord; // is x to the left of element
+      boolean xRight = (getWidget().getAbsoluteLeft() + getWidget().getOffsetWidth()) < xCord; // x
+                                                                                               // to
+                                                                                               // the
+                                                                                               // right
+      if (yTop || yBottom || xLeft || xRight) {
+        touchMoved = true;
+        onHoldPressOffStyle();// Go back to normal style
       }
 
     }
@@ -292,6 +289,20 @@ public abstract class FastPressElement extends Composite implements HasPressHand
     if (!touchMoved) {
       touchHandled = true;
       firePressEvent(event);
+
+      Touch move = null;
+
+      for (int i = 0; i < event.getChangedTouches().length(); i++) {
+        if (event.getChangedTouches().get(i).getIdentifier() == touchId) {
+          move = event.getChangedTouches().get(i);
+        }
+      }
+
+      int y = move.getClientY();
+      int x = move.getClientX();
+
+      FastPressClickBuster.preventDelayedGhostClick(x, y);
+
       onHoldPressOffStyle();// Change back the style
     }
   }

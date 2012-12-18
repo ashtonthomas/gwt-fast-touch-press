@@ -1,5 +1,6 @@
 package io.ashton.fastpress.client;
 
+import io.ashton.fastpress.client.fast.FastPressClickBuster;
 import io.ashton.fastpress.client.fast.PressEvent;
 import io.ashton.fastpress.client.fast.PressHandler;
 
@@ -22,6 +23,17 @@ public class Gwt_fast_press implements EntryPoint {
    * This is the entry point method.
    */
   public void onModuleLoad() {
+
+
+    RootPanel.get().addDomHandler(new ClickHandler() {
+      @Override
+      public void onClick(ClickEvent event) {
+        Window.alert("try to bust the cick");
+        FastPressClickBuster.bustClick(event);
+      }
+    }, ClickEvent.getType());
+
+
     VerticalPanel content = new VerticalPanel();
     content.getElement().getStyle().setWidth(100, Unit.PCT);
     content.getElement().getStyle().setProperty("margin", "auto");
@@ -42,6 +54,18 @@ public class Gwt_fast_press implements EntryPoint {
     testButtonHello.addPressHandler(new PressHandler() {
       @Override
       public void onPress(PressEvent event) {
+        debugPanel.add(new HTML(" Fast Hello Pressed! "));
+        debugPanel.add(new HTML(" Fast Hello Pressed! "));
+        debugPanel.add(new HTML(" Fast Hello Pressed! "));
+        debugPanel.add(new HTML(" Fast Hello Pressed! "));
+        debugPanel.add(new HTML(" Fast Hello Pressed! "));
+        debugPanel.add(new HTML(" Fast Hello Pressed! "));
+        debugPanel.add(new HTML(" Fast Hello Pressed! "));
+        debugPanel.add(new HTML(" Fast Hello Pressed! "));
+        debugPanel.add(new HTML(" Fast Hello Pressed! "));
+        debugPanel.add(new HTML(" Fast Hello Pressed! "));
+        debugPanel.add(new HTML(" Fast Hello Pressed! "));
+        debugPanel.add(new HTML(" Fast Hello Pressed! "));
         debugPanel.add(new HTML(" Fast Hello Pressed! "));
       }
     });
