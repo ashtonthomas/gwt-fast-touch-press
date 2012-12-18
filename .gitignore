@@ -3,7 +3,8 @@
 ehthumbs.db
 Icon?
 Thumbs.db
-war/WEB-INF/classes/
-war/gwt_fast_press/
+war/WEB-INF/classes
+war/gwt_fast_press
+war/WEB-INF/deploy
 .gwt/
-gwt-unitCache/
+gwt-unitCache

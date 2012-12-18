@@ -45,7 +45,6 @@ public class Gwt_fast_press implements EntryPoint {
         debugPanel.add(new HTML(" Fast Hello Pressed! "));
       }
     });
-    testButtonHello.setDebugPanel(debugPanel);
 
 
     TestFastPressElement testButtonGoodBye = new TestFastPressElement("Fast Good By");
@@ -55,7 +54,6 @@ public class Gwt_fast_press implements EntryPoint {
         debugPanel.add(new HTML(" Fast Good Bye! "));
       }
     });
-    testButtonGoodBye.setDebugPanel(debugPanel);
 
     TestFastPressElement testButtonFoobar = new TestFastPressElement("Fast Foo Bar");
     testButtonFoobar.addPressHandler(new PressHandler() {
@@ -64,7 +62,6 @@ public class Gwt_fast_press implements EntryPoint {
         debugPanel.add(new HTML(" Fast Foo Bar! "));
       }
     });
-    testButtonFoobar.setDebugPanel(debugPanel);
 
     final TestSlowPressElement testSlowOne = new TestSlowPressElement(" Slow One");
 

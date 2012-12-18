@@ -1,7 +1,5 @@
 package io.ashton.fastpress.client.fast;
 
-import java.util.Date;
-
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.core.client.Scheduler.RepeatingCommand;
 import com.google.gwt.core.client.Scheduler.ScheduledCommand;
@@ -10,16 +8,9 @@ import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.ui.Composite;
-import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
 /**
- *
- * TODO: I would like to change the term TouchClick to just Press Also, I need to add addHandler
- * method that subclasses will inherit that works in the same way addClickHandler (returning
- * HandlerRegistration) - Should not be using abstract method onTouchClickFire
- *
  *
  * GWT Implementation influenced by Google's FastPressElement:
  * https://developers.google.com/mobile/articles/fast_buttons
@@ -36,6 +27,9 @@ import com.google.gwt.user.client.ui.Widget;
  *
  * If you try to rapidly touch one or more FastPressElements, you will notice a MUCH great
  * improvement.
+ *
+ * TODO We should be able to embed fastElements and have the child fastElements NOT bubble the event
+ * So we can embed the elements if needed (???)
  *
  * @author ashton
  *
@@ -59,21 +53,6 @@ public abstract class FastPressElement extends Composite implements HasPressHand
 
   }
 
-  // TEMP
-  private long timeStart;
-  private VerticalPanel debugPanel;
-
-  public void setDebugPanel(VerticalPanel debugPanel) {
-    this.debugPanel = debugPanel;
-  }
-
-  private long getUnixTimeStamp() {
-    Date date = new Date();
-    return date.getTime();
-  }
-
-  // END TEMP/DEBUG
-
   public FastPressElement(int msDelay) {
     this();
     if (msDelay >= 0) {
@@ -82,6 +61,11 @@ public abstract class FastPressElement extends Composite implements HasPressHand
   }
 
   public void setEnabled(boolean enabled) {
+    if (enabled) {
+      onEnablePressStyle();
+    } else {
+      onDisablePressStyle();
+    }
     this.isEnabled = enabled;
   }
 
@@ -102,15 +86,11 @@ public abstract class FastPressElement extends Composite implements HasPressHand
    * @param event
    */
   private void firePressEvent(Event event) {
-    // This better be a ClickEvent or TouchEndEvent
+    // This better verify a ClickEvent or TouchEndEvent
     // TODO might want to verify
     // (hitting issue with web.bindery vs g.gwt.user package diff)
-
-    // only fire if enabled
-    if (isEnabled) {
-      PressEvent pressEvent = new PressEvent(event);
-      fireEvent(pressEvent);
-    }
+    PressEvent pressEvent = new PressEvent(event);
+    fireEvent(pressEvent);
   }
 
   /**
@@ -119,15 +99,33 @@ public abstract class FastPressElement extends Composite implements HasPressHand
    *
    * ONLY FOR STYLE CHANGE - Will briefly be called onClick
    *
+   * TIP: Don't make a dramatic style change. Take note that if a user is just trying to scroll, and
+   * start on the element and then scrolls off, we may not want to distract them too much. If a user
+   * does scroll off the element,
+   *
    */
-  public abstract void onHoldPressDown();
+  public abstract void onHoldPressDownStyle();
 
   /**
    * Implement the handler for release of press. This should just be some CSS or Style change.
    *
    * ONLY FOR STYLE CHANGE - Will briefly be called onClick
+   *
+   * TIP: This should just go back to the normal style.
    */
-  public abstract void onHoldPressOff();
+  public abstract void onHoldPressOffStyle();
+
+  /**
+   * Change styling to disabled
+   */
+  public abstract void onDisablePressStyle();
+
+  /**
+   * Change styling to enabled
+   *
+   * TIP:
+   */
+  public abstract void onEnablePressStyle();
 
   @Override
   public Widget getWidget() {
@@ -138,33 +136,47 @@ public abstract class FastPressElement extends Composite implements HasPressHand
   public void onBrowserEvent(Event event) {
     switch (DOM.eventGetType(event)) {
       case Event.ONTOUCHSTART: {
-        onTouchStart(event);
+        if (isEnabled) {
+          onTouchStart(event);
+        }
         break;
       }
       case Event.ONTOUCHEND: {
-        onTouchEnd(event);
+        if (isEnabled) {
+          onTouchEnd(event);
+        }
         break;
       }
       case Event.ONTOUCHMOVE: {
-        onTouchMove(event);
+        if (isEnabled) {
+          onTouchMove(event);
+        }
         break;
       }
-      case Event.ONTOUCHCANCEL:
-        onTouchCancel(event);
+      case Event.ONTOUCHCANCEL: {
+        if (isEnabled) {
+          onTouchCancel(event);
+        }
         break;
+      }
       case Event.ONCLICK: {
-        onClick(event);
+        if (isEnabled) {
+          onClick(event);
+        }
         return;
+      }
+      default: {
+        // Let parent handle event if not one of the above (?)
+        super.onBrowserEvent(event);
       }
     }
 
-    // Let parent handle event if not one of the above (?)
-    super.onBrowserEvent(event);
   }
 
   private void onTouchCancel(Event event) {
     // Just mark as moved so we don't have a touchEnd/fire
     touchMoved = true;
+    onHoldPressOffStyle();// Go back to normal style
   }
 
   private void onClick(Event event) {
@@ -174,16 +186,11 @@ public abstract class FastPressElement extends Composite implements HasPressHand
       // if the touch is already handled, we are on a device
       // that supports touch (so you aren't in the desktop browser)
 
-      // Let's see how much time we saved from touch
-      long timeEnd = getUnixTimeStamp();
-      if(debugPanel != null){
-        debugPanel.add(new HTML("Touch/Click Delay of: "+(timeEnd - timeStart)+" ms (SAVED!)."));
-      }
-      // End benchmark
+      touchHandled = false;// reset for next press
+      clickHandled = true;//
 
-      touchHandled = false;
-      clickHandled = true;
       super.onBrowserEvent(event);
+
     } else {
       if (clickHandled) {
         // Not sure how this situation would occur
@@ -192,8 +199,6 @@ public abstract class FastPressElement extends Composite implements HasPressHand
       } else {
         // Press not handled yet
 
-        clickHandled = false;
-
         // We still want to briefly fire the style change
         // To give good user feedback
         // Show HoldPress when possible
@@ -201,7 +206,7 @@ public abstract class FastPressElement extends Composite implements HasPressHand
           @Override
           public void execute() {
             // Show hold press
-            onHoldPressDown();
+            onHoldPressDownStyle();
 
             // Now schedule a delay (which will allow the actual
             // onTouchClickFire to executed
@@ -209,13 +214,14 @@ public abstract class FastPressElement extends Composite implements HasPressHand
               @Override
               public boolean execute() {
                 // Clear the style change
-                onHoldPressOff();
+                onHoldPressOffStyle();
                 return false;
               }
             }, flashDelay);
           }
         });
 
+        clickHandled = false;
         firePressEvent(event);
 
       }
@@ -223,17 +229,14 @@ public abstract class FastPressElement extends Composite implements HasPressHand
   }
 
   private void onTouchStart(Event event) {
-    // TEMP benchmark
-    timeStart = getUnixTimeStamp();
 
-    onHoldPressDown(); // Show style change
+    onHoldPressDownStyle(); // Show style change
 
     // Stop the event from bubbling up
     event.stopPropagation();
 
     // Only handle if we have exactly one touch
     if (event.getTargetTouches().length() == 1) {
-
       Touch start = event.getTargetTouches().get(0);
       touchId = start.getIdentifier();
       touchMoved = false;
@@ -249,6 +252,7 @@ public abstract class FastPressElement extends Composite implements HasPressHand
    * @param event
    */
   private void onTouchMove(Event event) {
+
     if (!touchMoved) {
       Touch move = null;
 
@@ -261,29 +265,20 @@ public abstract class FastPressElement extends Composite implements HasPressHand
       if (move != null) {
         // Check to see if we moved off of the original element
 
-        int yCord = move.getClientY();
-        int xCord = move.getClientX();
+        int yCord = move.getScreenY();
+        int xCord = move.getScreenX();
 
-        boolean yTop = getWidget().getAbsoluteTop() > yCord; // is y NOT above element
-        boolean yBottom = (getWidget().getAbsoluteTop() + getWidget().getOffsetHeight()) < yCord; // is
-                                                                                                   // y
-                                                                                                   // NOT
-                                                                                                   // below
-                                                                                                   // the
-                                                                                                   // element
-        boolean xLeft = getWidget().getAbsoluteLeft() > xCord; // is x NOT to the left of element
-        boolean xRight = (getWidget().getAbsoluteLeft() + getWidget().getOffsetWidth()) > xCord; // is
-                                                                                                  // x
-                                                                                                  // NOT
-                                                                                                  // to
-                                                                                                  // the
-                                                                                                  // right
-                                                                                                  // of
-                                                                                                  // the
-                                                                                                  // element
-
-        if (yTop && yBottom && xLeft && xRight) {
+        boolean yTop = getWidget().getAbsoluteTop() > yCord; // is y above element
+        boolean yBottom = (getWidget().getAbsoluteTop() + getWidget().getOffsetHeight()) < yCord; // y
+                                                                                                  // below
+        boolean xLeft = getWidget().getAbsoluteLeft() > xCord; // is x to the left of element
+        boolean xRight = (getWidget().getAbsoluteLeft() + getWidget().getOffsetWidth()) < xCord; // x
+                                                                                                 // to
+                                                                                                 // the
+                                                                                                 // right
+        if (yTop || yBottom || xLeft || xRight) {
           touchMoved = true;
+          onHoldPressOffStyle();// Go back to normal style
         }
 
       }
@@ -293,10 +288,11 @@ public abstract class FastPressElement extends Composite implements HasPressHand
   }
 
   private void onTouchEnd(Event event) {
+
     if (!touchMoved) {
       touchHandled = true;
       firePressEvent(event);
-      onHoldPressOff();// Change back the style
+      onHoldPressOffStyle();// Change back the style
     }
   }
 

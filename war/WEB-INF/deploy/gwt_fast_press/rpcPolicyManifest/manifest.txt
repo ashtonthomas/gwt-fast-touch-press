@@ -1,2 +1,0 @@
-# Module gwt_fast_press
-# RPC service class, partial path of RPC policy file

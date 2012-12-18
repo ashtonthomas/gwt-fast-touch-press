@@ -13,8 +13,8 @@
 			padding: 20px 25px 20px 25px;
 			text-align: center;
 			font-size: 20px;
-			background-color: #CCCCCC;
-			color: #000000;
+			background-color: #666666;
+			color: #FFFFFF;
 		}
 	</ui:style>
 	<g:HTMLPanel styleName="{style.wrapNormal}">
