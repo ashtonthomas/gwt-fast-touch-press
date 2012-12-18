@@ -285,24 +285,10 @@ public abstract class FastPressElement extends Composite implements HasPressHand
   }
 
   private void onTouchEnd(Event event) {
-
     if (!touchMoved) {
       touchHandled = true;
       firePressEvent(event);
-
-      Touch move = null;
-
-      for (int i = 0; i < event.getChangedTouches().length(); i++) {
-        if (event.getChangedTouches().get(i).getIdentifier() == touchId) {
-          move = event.getChangedTouches().get(i);
-        }
-      }
-
-      int y = move.getClientY();
-      int x = move.getClientX();
-
-      FastPressClickBuster.preventDelayedGhostClick(x, y);
-
+      event.preventDefault();
       onHoldPressOffStyle();// Change back the style
     }
   }
