@@ -28,13 +28,13 @@ import com.google.gwt.user.client.ui.Widget;
  * If you try to rapidly touch one or more FastPressElements, you will notice a MUCH great
  * improvement.
  *
- * NOTE: Different browsers will handle quick swipe or long hold/drag touches differently.
- * This is an edge case if the user is long pressing or pressing while dragging the finger
- * slightly (but staying on the element) - The browser may or may not fire the event. However,
- * the browser will always fire the regular tap/press very quickly. iOS/Safari will honor a
- * long press better than some android devices. If you are having problems with your long press
- * or very quick press, it is probably because the mobile browser isn't firing the events (This
- * is probably for a reason and in the best interest of the user)
+ * NOTE: Different browsers will handle quick swipe or long hold/drag touches differently. This is
+ * an edge case if the user is long pressing or pressing while dragging the finger slightly (but
+ * staying on the element) - The browser may or may not fire the event. However, the browser will
+ * always fire the regular tap/press very quickly. iOS/Safari will honor a long press better than
+ * some android devices. If you are having problems with your long press or very quick press, it is
+ * probably because the mobile browser isn't firing the events (This is probably for a reason and in
+ * the best interest of the user)
  *
  * TODO We should be able to embed fastElements and have the child fastElements NOT bubble the event
  * So we can embed the elements if needed (???)
@@ -50,6 +50,21 @@ public abstract class FastPressElement extends Composite implements HasPressHand
   private boolean isEnabled = true;
   private int touchId;
   private int flashDelay = 75; // Default time delay in ms to flash style change
+
+  // We can just check to see if the user keeps their finger on the element
+  // while they move their finger. This is because iOS has a very responsive
+  // scroll/swipe which is proportional to the move. Therefore, if you try to scroll
+  // on a page but your finger starts on a fastPressElement when you let go your
+  // finger will still be on the element and thus firing a pressEvent.
+  // use the below threshold to detect any kind of swipe or scroll.
+  // There are some drawback here since you in fact want to allow for a greater
+  // threshold (as long as you stay on the element) but we cannot satisfy this
+  // all the time.
+  private int swipDetectThreshold = 25;
+
+  // If we use swipDetect Threshold we will need start X,Y
+  private int startY;
+  private int startX;
 
   public FastPressElement() {
     // Sink Click and Touch Events
@@ -234,6 +249,10 @@ public abstract class FastPressElement extends Composite implements HasPressHand
     // Only handle if we have exactly one touch
     if (event.getTargetTouches().length() == 1) {
       Touch start = event.getTargetTouches().get(0);
+
+      this.startX = start.getClientX();
+      this.startY = start.getClientY();
+
       touchId = start.getIdentifier();
       touchMoved = false;
     }
@@ -264,17 +283,30 @@ public abstract class FastPressElement extends Composite implements HasPressHand
       int yCord = move.getPageY();
       int xCord = move.getPageX();
 
-      boolean yTop = getWidget().getAbsoluteTop() > yCord; // is y above element
-      boolean yBottom = (getWidget().getAbsoluteTop() + getWidget().getOffsetHeight()) < yCord; // y
-                                                                                                // below
-      boolean xLeft = getWidget().getAbsoluteLeft() > xCord; // is x to the left of element
-      boolean xRight = (getWidget().getAbsoluteLeft() + getWidget().getOffsetWidth()) < xCord; // x
-                                                                                               // to
-                                                                                               // the
-                                                                                               // right
-      if (yTop || yBottom || xLeft || xRight) {
+      int deltaX = Math.abs(startX - move.getClientX());
+      int deltaY = Math.abs(startY - move.getClientY());
+
+      if (deltaX > swipDetectThreshold || deltaY > swipDetectThreshold) {
+
+        // Move exceeds threshold. This may be a swip gesture or scroll
         touchMoved = true;
-        onHoldPressOffStyle();// Go back to normal style
+
+      } else {
+
+        // Within threshold. Check to make sure we are still on the element
+        boolean yTop = getWidget().getAbsoluteTop() > yCord; // is y above element
+        boolean yBottom = (getWidget().getAbsoluteTop() + getWidget().getOffsetHeight()) < yCord; // y
+        // below
+        boolean xLeft = getWidget().getAbsoluteLeft() > xCord; // is x to the left of element
+        boolean xRight = (getWidget().getAbsoluteLeft() + getWidget().getOffsetWidth()) < xCord; // x
+        // to
+        // the
+        // right
+        if (yTop || yBottom || xLeft || xRight) {
+          touchMoved = true;
+          onHoldPressOffStyle();// Go back to normal style
+        }
+
       }
 
     }
