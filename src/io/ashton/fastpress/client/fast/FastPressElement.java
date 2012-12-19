@@ -31,7 +31,10 @@ import com.google.gwt.user.client.ui.Widget;
  * NOTE: Different browsers will handle quick swipe or long hold/drag touches differently.
  * This is an edge case if the user is long pressing or pressing while dragging the finger
  * slightly (but staying on the element) - The browser may or may not fire the event. However,
- * the browser will always fire the regular tap/press very quickly.
+ * the browser will always fire the regular tap/press very quickly. iOS/Safari will honor a
+ * long press better than some android devices. If you are having problems with your long press
+ * or very quick press, it is probably because the mobile browser isn't firing the events (This
+ * is probably for a reason and in the best interest of the user)
  *
  * TODO We should be able to embed fastElements and have the child fastElements NOT bubble the event
  * So we can embed the elements if needed (???)
